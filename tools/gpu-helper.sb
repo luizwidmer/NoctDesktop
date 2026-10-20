@@ -1,0 +1,9 @@
+; Research policy for the first-party GPU helper. Reads and Metal IPC retain
+; their platform behavior. The helper may write files only under its vault.
+; No guest-provided path, shader, executable or host handle is accepted.
+(version 1)
+(allow default)
+(deny file-write*
+  (require-all
+    (require-not (subpath (param "VAULT")))
+    (require-not (literal "/dev/null"))))
