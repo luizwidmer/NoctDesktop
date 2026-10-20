@@ -144,7 +144,7 @@ class Workspace:
             raise WorkspaceError("This workspace already exists; it will not be overwritten.")
         self.folder.mkdir(parents=True, exist_ok=True, mode=0o700)
         os.chmod(self.folder, 0o700)
-        if size not in {"4g", "8g"}:
+        if size not in {"4g", "8g", "12g"}:
             raise WorkspaceError("Unsupported prototype volume size.")
         run(["/usr/bin/hdiutil", "create", "-size", size, "-type", "SPARSEBUNDLE",
              "-fs", "APFS", "-volname", "Noct Desktop Workspace", "-encryption", "AES-256",

@@ -48,9 +48,11 @@ The sparse vault has an 8 GiB logical capacity; the guest disk has 7.5 GiB logic
 
 The desktop provides draggable icons, a dock, Files with internal folders and folder creation, workspace settings, a WebKitGTK browser and an HTTPS web-app registry. Installed web apps get separate profile/cache/preferences directories. The web-app installer does not port macOS applications or verify publisher signatures.
 
-The shell and guest use Noctweave's plum, ivory, coral and wine colors. The guest resolution follows the native window and fullscreen at logical pixel density, with a 200 ms delay and a 1920×1200 cap. The native display scales frames with Metal, with an AppKit fallback. The guest X server and browser still render in software; there is no Retina density mode.
+The shell and guest use Noctweave's plum, ivory, coral and wine colors. The guest resolution follows the native window and fullscreen at logical pixel density, with a 200 ms delay and a 1920×1200 cap. The native display scales frames with Metal, with an AppKit fallback. Software guest rendering remains the default; there is no Retina density mode.
 
 An experimental **Noct GPU** API lets first-party guest apps render bounded triangles on the Mac's GPU through a private virtio-serial channel. Open **Settings → GPU Studio** for the visible proof. The helper has an additional file-write restriction and exits before vault detachment. This is not an OpenGL/Vulkan driver or browser acceleration. See [GPU implementation and limits](docs/gpu.md).
+
+An optional **browser GPU backend** now connects guest Mesa/virgl to ANGLE Metal. Hardware WebGL 1 and WebKit compositing work. CPU page painting is retained to avoid missing text; WebGL 2, hardware video decode and WebGPU are not working/verified. The small local runtime and matching guest-driver installer preserve the encrypted disk and shutdown-before-unmount sequence. See [setup, evidence and remaining GPU limits](docs/browser-gpu.md). Full browser acceleration is not achieved.
 
 The password is passed through stdin and is not saved in Keychain, arguments or configuration. There is no recovery. Keep your password.
 

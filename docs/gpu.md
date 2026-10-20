@@ -4,7 +4,7 @@ Status: experimental, verified on Apple M4 / macOS 27.0.1 / FreeBSD 15.1 ARM64, 
 
 ## What works
 
-The native display presents the guest framebuffer with Metal. It uploads RFB pixels to immutable GPU textures, scales them in a fixed render pipeline, coalesces pending frames, limits GPU submissions and draws only when content changes. AppKit drawing remains a fallback if Metal initialization fails. The guest display still originates in software Xvnc; Metal presentation does not make WebKit hardware accelerated.
+The native display presents the guest framebuffer with Metal. It uploads RFB pixels to immutable GPU textures, scales them in a fixed render pipeline, coalesces pending frames, limits GPU submissions and draws only when content changes. AppKit drawing remains a fallback if Metal initialization fails. Metal presentation alone does not accelerate WebKit. A separate [experimental browser backend](browser-gpu.md) now provides hardware WebGL 1 and WebKit compositing, with explicit remaining limits.
 
 A separate **NoctGPUBroker** executes a small, first-party triangle API on the Mac GPU. FreeBSD apps use `noct_gpu.py` over a private virtio-serial port. GPU Studio, available from guest Settings, renders a colored triangle and lets the user change its geometry. The GPU executes the render pass; returned pixels are displayed in the guest through GTK. No external rendering service is involved.
 
@@ -43,12 +43,13 @@ The native Mac shell and macOS services can still create ordinary UI metadata an
 
 New prototype workspaces enable `noct_gpu` in their non-secret runtime configuration. Existing workspaces may opt in only after building the helper and installing the updated NoctBSD overlay. Setting it to false before starting the VM omits the experimental serial device and helper.
 
-## General guest acceleration
+## Browser acceleration
 
-The installed Homebrew QEMU exposes 2D virtio GPU devices, but no compiled virgl/rutabaga device. QEMU's [virtio GPU documentation](https://www.qemu.org/docs/master/system/devices/virtio/virtio-gpu.html) distinguishes the software 2D backend from virgl/rutabaga 3D backends.
+The default Homebrew QEMU still lacks the required compiled 3D device. The
+optional local runtime now builds a separate AArch64/HVF QEMU with virgl and
+Metal ANGLE, and NoctBSD provides a matching experimental 15.1 DRM backport.
+Hardware renderer and WebGL pixel tests pass. This extends beyond the limited
+triangle API above, but it is not full browser acceleration: CPU page painting,
+WebGL 2, video decoding and display readback remain limitations.
 
-FreeBSD [drm-kmod PR 517](https://github.com/freebsd/drm-kmod/pull/517) is an upstream candidate for KMS and virgl, reporting tests on FreeBSD 16 CURRENT aarch64. It remained open on the verification date; reviewed head was `fa44e452f2d3291710a4d4c19b89e2edcd13d6b9`. It is not installed in this 15.1 guest. Matching kernel sources and a compatibility port are required before testing it here.
-
-A third-party [macOS QEMU/ANGLE/virgl tap](https://github.com/milesbuckton/homebrew-qemu-virgl) is a possible host backend. Its documentation describes Metal through ANGLE. Its binaries, FreeBSD compatibility and integration have not been validated by Noct Desktop and are not included in the prototype.
-
-The next general-purpose milestone is a matched guest DRM/Mesa driver and Mac virgl backend, followed by an actual hardware renderer string, WebKit/WebGL workloads, resize tests and the complete storage/lock checks. Until those pass, the browser and arbitrary guest apps must be described as software rendered.
+See [browser setup, pinned sources, verification and remaining work](browser-gpu.md).

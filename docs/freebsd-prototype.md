@@ -2,7 +2,7 @@
 
 Measured locally on 20 October 2026. This report covers the package-based research build, not a production security certification or a comparison with other operating systems.
 
-## Configuration
+## Software baseline configuration
 
 | Component | Tested configuration |
 | --- | --- |
@@ -52,7 +52,7 @@ The native shell presents changed guest frames through Metal. A separate restric
 
 The guest pixel test ran as the unprivileged `noct` user. It checked an exact red center and black corner, a different output for green input, a transfer checksum and five rejected invalid requests. The host self-test additionally rejected six invalid requests. The guest test's observed Metal pass was 0.045 ms; its complete multi-request verification took 0.286 s. Those figures cover different scopes and are not per-frame throughput measurements.
 
-**WebKit, Xvnc and arbitrary guest apps remain software rendered.** This is a first-party GPU API proof, not a general graphics driver. Full browser acceleration requires matched FreeBSD DRM/Mesa support and a Mac virgl backend, then renderer, WebGL, performance, storage and lock verification. See [GPU implementation and upstream candidates](gpu.md).
+The measurements above describe the software baseline and first-party triangle API. A separate optional virgl/ANGLE Metal backend now provides hardware WebGL 1 and WebKit compositing. Full browser GPU support remains incomplete. See [browser GPU verification and limits](browser-gpu.md).
 
 ## Storage and lock evidence
 

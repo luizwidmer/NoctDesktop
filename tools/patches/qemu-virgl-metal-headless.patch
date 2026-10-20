@@ -1,0 +1,126 @@
+diff --git a/ui/egl-headless.c b/ui/egl-headless.c
+index c3f319c..e4f24bf 100644
+--- a/ui/egl-headless.c
++++ b/ui/egl-headless.c
+@@ -228,6 +228,13 @@ static void early_egl_headless_init(DisplayOptions *opts)
+     }
+ 
+     egl_init(opts->u.egl_headless.rendernode, mode, &error_fatal);
++    /* Move the context from Cocoa's startup thread to the QEMU thread. */
++    if (!eglMakeCurrent(qemu_egl_display, EGL_NO_SURFACE,
++                        EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
++        error_report("egl-headless: failed to release startup context: 0x%x",
++                     eglGetError());
++        exit(1);
++    }
+ }
+ 
+ static void egl_headless_init(DisplayState *ds, DisplayOptions *opts)
+@@ -238,8 +245,13 @@ static void egl_headless_init(DisplayState *ds, DisplayOptions *opts)
+ 
+     egl_dpys = g_ptr_array_new();
+ 
+-    eglMakeCurrent(qemu_egl_display, EGL_NO_SURFACE,
+-                   EGL_NO_SURFACE, qemu_egl_rn_ctx);
++    if (!eglMakeCurrent(qemu_egl_display, EGL_NO_SURFACE,
++                        EGL_NO_SURFACE, qemu_egl_rn_ctx)) {
++        error_report("egl-headless: failed to bind render context: 0x%x",
++                     eglGetError());
++        exit(1);
++    }
++    error_report("GPU renderer: %s", glGetString(GL_RENDERER));
+     for (idx = 0;; idx++) {
+         DisplayGLCtx *ctx;
+ 
+@@ -257,6 +269,13 @@ static void egl_headless_init(DisplayState *ds, DisplayOptions *opts)
+         qemu_console_register_listener(con, &edpy->dcl, &egl_ops);
+         g_ptr_array_add(egl_dpys, edpy);
+     }
++    /* qemu_main subsequently runs display operations on the VM thread. */
++    if (!eglMakeCurrent(qemu_egl_display, EGL_NO_SURFACE,
++                        EGL_NO_SURFACE, EGL_NO_CONTEXT)) {
++        error_report("egl-headless: failed to release display context: 0x%x",
++                     eglGetError());
++        exit(1);
++    }
+ }
+ 
+ static void egl_headless_cleanup(void)
+@@ -265,8 +284,12 @@ static void egl_headless_cleanup(void)
+         return;
+     }
+ 
+-    eglMakeCurrent(qemu_egl_display, EGL_NO_SURFACE,
+-                   EGL_NO_SURFACE, qemu_egl_rn_ctx);
++    if (!eglMakeCurrent(qemu_egl_display, EGL_NO_SURFACE,
++                        EGL_NO_SURFACE, qemu_egl_rn_ctx)) {
++        error_report("egl-headless: failed to bind cleanup context: 0x%x",
++                     eglGetError());
++        exit(1);
++    }
+     for (guint i = 0; i < egl_dpys->len; i++) {
+         egl_dpy *edpy = g_ptr_array_index(egl_dpys, i);
+ 
+diff --git a/ui/egl-helpers.c b/ui/egl-helpers.c
+index 0512e64..dc43bc8 100644
+--- a/ui/egl-helpers.c
++++ b/ui/egl-helpers.c
+@@ -25,6 +25,18 @@
+ #include "trace.h"
+ #include "standard-headers/drm/drm_fourcc.h"
+ 
++#ifdef CONFIG_COCOA
++/* EGL_ANGLE_platform_angle and EGL_ANGLE_platform_angle_metal. */
++#ifndef EGL_PLATFORM_ANGLE_ANGLE
++#define EGL_PLATFORM_ANGLE_ANGLE 0x3202
++#define EGL_PLATFORM_ANGLE_TYPE_ANGLE 0x3203
++#endif
++#ifndef EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE
++#define EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE 0x3489
++#endif
++#endif
++
++
+ EGLDisplay qemu_egl_display;
+ EGLConfig qemu_egl_config;
+ DisplayGLMode qemu_egl_mode;
+@@ -531,6 +543,18 @@ EGLDisplay qemu_egl_get_display(EGLNativeDisplayType native,
+ {
+     EGLDisplay dpy = EGL_NO_DISPLAY;
+ 
++#ifdef CONFIG_COCOA
++    /* Select Metal explicitly; ANGLE's default may choose desktop OpenGL. */
++    if (platform == 0) {
++        const EGLint attribs[] = {
++            EGL_PLATFORM_ANGLE_TYPE_ANGLE, EGL_PLATFORM_ANGLE_TYPE_METAL_ANGLE,
++            EGL_NONE,
++        };
++        return eglGetPlatformDisplayEXT(EGL_PLATFORM_ANGLE_ANGLE,
++                                        (void *)(uintptr_t)native, attribs);
++    }
++#endif
++
+     /* In practise any EGL 1.5 implementation would support the EXT extension */
+     if (epoxy_has_egl_extension(NULL, "EGL_EXT_platform_base")) {
+         if (platform != 0) {
+diff --git a/ui/shader.c b/ui/shader.c
+index 76ee4c3..867e465 100644
+--- a/ui/shader.c
++++ b/ui/shader.c
+@@ -35,7 +35,7 @@
+ struct QemuGLShader {
+     GLint texture_blit_prog;
+     GLint texture_blit_flip_prog;
+-    GLint texture_blit_vao;
++    GLuint texture_blit_vao;
+ };
+ 
+ /* ---------------------------------------------------------------------- */
+@@ -175,6 +175,6 @@ void qemu_gl_fini_shader(QemuGLShader *gls)
+     }
+     glDeleteProgram(gls->texture_blit_prog);
+     glDeleteProgram(gls->texture_blit_flip_prog);
+-    glDeleteProgram(gls->texture_blit_vao);
++    glDeleteVertexArrays(1, &gls->texture_blit_vao);
+     g_free(gls);
+ }
