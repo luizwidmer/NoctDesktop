@@ -47,6 +47,63 @@ ANGLE_LICENSE = {
     "url": "https://raw.githubusercontent.com/google/angle/b82a564646a2/LICENSE",
     "sha256": "bf4da21bd20bcfb5b60b7ecc67fa864a79be049e21d6178076887f178dd6c71a",
 }
+RENDERER_PATCH = ROOT / "tools/patches/virgl-angle-multisample.patch"
+RENDERER_SOURCE = {
+    "commit": "f599855944c9fdf706f28dd9c41a2d8256b7f3a4",
+    "url": "https://gitlab.freedesktop.org/miles.buckton/virglrenderer/-/archive/f599855944c9fdf706f28dd9c41a2d8256b7f3a4/virglrenderer-f599855944c9fdf706f28dd9c41a2d8256b7f3a4.tar.gz",
+    "sha256": "49b23a83e9206b0b834c8e2758fbe4a1b6bfc4cb4eb0db9633df92d077437028",
+}
+
+
+def build_renderer(keep=False):
+    """Build-time tooling only. Neither shipped app runs Python."""
+    scratch = ROOT / "build/virgl-renderer-build"
+    if scratch.exists():
+        raise RuntimeError("Renderer scratch exists; preserve or remove that build before retrying")
+    scratch.mkdir(parents=True)
+    deps = scratch / "deps"
+    try:
+        for name in ["libepoxy-angle-master", "angle-metal", "source"]:
+            spec = RENDERER_SOURCE if name == "source" else BOTTLES[name]
+            archive = scratch / (name + ".tar.gz")
+            with urllib.request.urlopen(spec["url"], timeout=45) as incoming, archive.open("xb") as output:
+                count = 0
+                while chunk := incoming.read(1024**2):
+                    reserve(); count += len(chunk)
+                    if count > 16 * 1024**2: raise RuntimeError("Renderer input exceeds its download budget")
+                    output.write(chunk)
+            if digest(archive) != spec["sha256"]: raise RuntimeError("Renderer input checksum mismatch: " + name)
+            with tarfile.open(archive) as bundle:
+                for member in bundle:
+                    if not member.isfile(): continue
+                    parts = Path(member.name).parts
+                    if ".." in parts or Path(member.name).is_absolute(): raise RuntimeError("Unsafe renderer archive member")
+                    if name == "source":
+                        relative = Path(*parts[1:]); target = scratch / "source" / relative
+                    else:
+                        prefix = spec["prefix"] + "/include/"
+                        if not member.name.startswith(prefix): continue
+                        target = deps / "include" / member.name[len(prefix):]
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    target.write_bytes(bundle.extractfile(member).read())
+            archive.unlink()
+        pc = deps / "lib/pkgconfig/epoxy.pc"; pc.parent.mkdir(parents=True)
+        pc.write_text(f"prefix={deps}\nincludedir=${{prefix}}/include\nlibdir={DEST}/lib\nepoxy_has_glx=0\nepoxy_has_egl=1\nepoxy_has_wgl=0\nName: epoxy\nDescription: GL dispatch\nVersion: 1.5.11\nLibs: -L${{libdir}} -lepoxy\nCflags: -I${{includedir}}\n")
+        run(["/usr/bin/patch", "-p1", "-t", "-i", RENDERER_PATCH], cwd=scratch / "source", stderr=subprocess.STDOUT)
+        run([sys.executable, "-m", "venv", scratch / "venv"])
+        run([scratch / "venv/bin/python3", "-m", "pip", "install", "--disable-pip-version-check", "--only-binary=:all:", "PyYAML==6.0.3"], stderr=subprocess.STDOUT)
+        env = {**os.environ, "PATH": str(scratch / "venv/bin") + ":" + os.environ["PATH"],
+               "PKG_CONFIG_PATH": str(pc.parent) + ":/opt/homebrew/lib/pkgconfig"}
+        monitored(["meson", "setup", scratch / "build", scratch / "source", "-Dplatforms=egl", "-Dvenus=false", "-Dtests=false", "-Dvideo=false", "-Dbuildtype=release", "-Db_ndebug=true"], DEST / "logs/renderer-configure.log", env=env)
+        monitored(["ninja", "-C", scratch / "build", "-j2", "src/libvirglrenderer.1.dylib"], DEST / "logs/renderer-build.log", env=env)
+        target = DEST / "lib/libvirglrenderer.1.dylib"
+        shutil.copyfile(scratch / "build/src/libvirglrenderer.1.dylib", target)
+        run(["/usr/bin/install_name_tool", "-id", target, target], stderr=subprocess.STDOUT)
+        run(["/usr/bin/codesign", "--force", "--sign", "-", target], stderr=subprocess.STDOUT)
+        for file in (scratch / "source").glob("COPYING*"):
+            shutil.copyfile(file, DEST / "licenses" / ("virglrenderer-source-" + file.name))
+    finally:
+        if not keep: shutil.rmtree(scratch, ignore_errors=True)
 
 
 def digest(path):
@@ -168,6 +225,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--keep-build", action="store_true")
     parser.add_argument("--rebuild", action="store_true")
+    parser.add_argument("--renderer-only", action="store_true", help="Rebuild the small renderer without rebuilding QEMU")
     args = parser.parse_args()
     if sys.platform != "darwin" or os.uname().machine != "arm64":
         raise SystemExit("Apple Silicon macOS required")
@@ -178,13 +236,25 @@ def main():
         manifest = json.loads(manifest_path.read_text())
         required = {"bin/qemu-system-aarch64", "lib/libEGL.dylib", "lib/libGLESv1_CM.dylib", "lib/libGLESv2.dylib", "lib/libepoxy.0.dylib", "lib/libvirglrenderer.1.dylib"}
         if manifest.get("qemu_local_patch_sha256") == patch_hash and manifest.get("qemu_source_commit") == QEMU_COMMIT and required <= manifest.get("binaries", {}).keys() and all((DEST / p).is_file() and digest(DEST / p) == h for p, h in manifest.get("binaries", {}).items()) and manifest.get("prepared_by") == "noct.browser-gpu@1":
-            manifest["angle_license"] = ANGLE_LICENSE
-            manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
-            print("Verified existing Noct browser GPU runtime"); return
+            if manifest.get("renderer_patch_sha256") != digest(RENDERER_PATCH) or args.renderer_only:
+                args.renderer_only = True
+            else:
+                manifest["angle_license"] = ANGLE_LICENSE
+                manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+                print("Verified existing Noct browser GPU runtime"); return
     processes = run(["/bin/ps", "-axo", "command="], text=True)
     if any(line.startswith(str(DEST / "bin/qemu-system-aarch64") + " ") for line in processes.splitlines()):
         raise RuntimeError("Stop GPU workspaces before replacing their runtime")
     reserve()
+    if args.renderer_only:
+        if not manifest_path.is_file(): raise RuntimeError("Prepare QEMU before using --renderer-only")
+        build_renderer(args.keep_build)
+        manifest = json.loads(manifest_path.read_text())
+        manifest.update(renderer_source=RENDERER_SOURCE, renderer_patch_sha256=digest(RENDERER_PATCH))
+        manifest["binaries"]["lib/libvirglrenderer.1.dylib"] = digest(DEST / "lib/libvirglrenderer.1.dylib")
+        manifest["runtime_file_bytes"] = sum((DEST / p).stat().st_size for p in manifest["binaries"])
+        manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        print("Built and verified the patched ANGLE multisample renderer"); return
     for program in ["git", "/opt/homebrew/bin/ninja", "pkg-config", "clang", "codesign", "install_name_tool"]:
         if not shutil.which(program):
             raise RuntimeError("Install the required build tool first: " + program)
@@ -192,6 +262,7 @@ def main():
         (DEST / folder).mkdir(parents=True, exist_ok=True)
     for name, spec in BOTTLES.items(): fetch(name, spec)
     relocate_and_sign()
+    build_renderer(args.keep_build)
     fresh = not SOURCE.exists()
     if fresh:
         run(["git", "clone", "--depth=1", "--filter=blob:none", "--no-checkout", "--no-recurse-submodules", "https://gitlab.com/milesbuckton/qemu.git", SOURCE], stderr=subprocess.STDOUT)
@@ -228,6 +299,7 @@ def main():
     for name in ["COPYING", "COPYING.LIB"]:
         if (SOURCE / name).exists(): shutil.copyfile(SOURCE / name, DEST / "licenses" / ("QEMU-" + name))
     manifest = {"prepared_by": "noct.browser-gpu@1", "qemu_source_commit": QEMU_COMMIT, "qemu_local_patch_sha256": patch_hash, "artifacts": BOTTLES, "angle_license": ANGLE_LICENSE, "binaries": {str(p.relative_to(DEST)): digest(p) for d in ["bin", "lib"] for p in (DEST / d).iterdir() if p.is_file() and not p.is_symlink()}, "version": run([target, "--version"], env=env, text=True).splitlines()[0]}
+    manifest.update(renderer_source=RENDERER_SOURCE, renderer_patch_sha256=digest(RENDERER_PATCH))
     manifest["runtime_file_bytes"] = sum((DEST / p).stat().st_size for p in manifest["binaries"])
     manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
     if not args.keep_build:

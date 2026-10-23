@@ -16,3 +16,5 @@ evidence/
 .env
 .env.*
 AGENTS.md
+xcuserdata/
+*.xcuserstate

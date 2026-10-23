@@ -1,0 +1,662 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0B7A955246250DB8EACBEE0B /* NativeImageInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DBE71356C52399657D1394 /* NativeImageInstaller.swift */; };
+		125DB9EC2EA026E3C01C9132 /* NativeImageInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DBE71356C52399657D1394 /* NativeImageInstaller.swift */; };
+		157F54F00414F2E84BC59891 /* NativeWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B17D66C23576C100CD27AD2 /* NativeWorkspace.swift */; };
+		1A7A65454F9BA313F2BDBAA6 /* VerifyNativeRuntime.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44F39014CCB20F6B5D32C19D /* VerifyNativeRuntime.swift */; };
+		38F84B2B5715EF3E9137492C /* NoctDesktop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3028E9A01EC5494BCAA4FF0C /* NoctDesktop.swift */; };
+		4DA5BBC406AA3AC9918F3BDE /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7616558B909D4A1C16FFB839 /* CryptoKit.framework */; };
+		5856419B69150900A06A812E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B1C3987469AE88CE344519D5 /* Assets.xcassets */; };
+		597E054D2B24E0C471546C30 /* VMDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA336FDEF8776D3AB04E08DC /* VMDisplay.swift */; };
+		6EE3432AE5487FA88B692650 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B27A31240F0813CDD786F75 /* MetalKit.framework */; };
+		6FFF183DEC9BE311DAAC68A3 /* NativeWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B17D66C23576C100CD27AD2 /* NativeWorkspace.swift */; };
+		72C43DCC5BAD46D845BCB1E7 /* NoctGPUBroker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8ECEF9F3362B7A7F123FEB6B /* NoctGPUBroker.swift */; };
+		8D4E9AA08966394F080979D5 /* NativeImageInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0DBE71356C52399657D1394 /* NativeImageInstaller.swift */; };
+		9513716355620C5A62537104 /* NativeWorkspace.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B17D66C23576C100CD27AD2 /* NativeWorkspace.swift */; };
+		996A3716700C53E0165C656D /* NoctMetal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECFE5B8CA3D813140F0BAD9 /* NoctMetal.swift */; };
+		A0ACC497E951B4ED67DFB06C /* DesktopViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5F9D499357E6C320F6F8359 /* DesktopViews.swift */; };
+		A70E87C0BF8B2E6B70210D40 /* MetalKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B27A31240F0813CDD786F75 /* MetalKit.framework */; };
+		AF9C13AB4E46B9630A445399 /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7616558B909D4A1C16FFB839 /* CryptoKit.framework */; };
+		F39021D076C143F71F11037D /* NoctMetal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1ECFE5B8CA3D813140F0BAD9 /* NoctMetal.swift */; };
+		F4E470C8300DAB1093F78437 /* CryptoKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7616558B909D4A1C16FFB839 /* CryptoKit.framework */; };
+		F582EA5C37E375E0ACCB9F6B /* NoctRuntimeCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 000F996913100E279211CE71 /* NoctRuntimeCLI.swift */; };
+		FB61BE70E286FADF77DC3AAA /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5A11A4D6B053BE7A9B7957B4 /* AppKit.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		9702A70A3765F2A013648CDF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4FD0C5E26D11C4350EA03769 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = AFDD0CA3C42699A18D85DB54;
+			remoteInfo = NoctGPUBroker;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		000F996913100E279211CE71 /* NoctRuntimeCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoctRuntimeCLI.swift; sourceTree = "<group>"; };
+		1ECFE5B8CA3D813140F0BAD9 /* NoctMetal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoctMetal.swift; sourceTree = "<group>"; };
+		3028E9A01EC5494BCAA4FF0C /* NoctDesktop.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoctDesktop.swift; sourceTree = "<group>"; };
+		39B8D4AB586C11536A8502C1 /* NoctRuntimeChecks */ = {isa = PBXFileReference; includeInIndex = 0; path = NoctRuntimeChecks; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B17D66C23576C100CD27AD2 /* NativeWorkspace.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeWorkspace.swift; sourceTree = "<group>"; };
+		3B27A31240F0813CDD786F75 /* MetalKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MetalKit.framework; path = System/Library/Frameworks/MetalKit.framework; sourceTree = SDKROOT; };
+		44F39014CCB20F6B5D32C19D /* VerifyNativeRuntime.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerifyNativeRuntime.swift; sourceTree = "<group>"; };
+		5A11A4D6B053BE7A9B7957B4 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		6190C0F6ECD9AFDB83565F7C /* NoctRuntime */ = {isa = PBXFileReference; includeInIndex = 0; path = NoctRuntime; sourceTree = BUILT_PRODUCTS_DIR; };
+		6C4373E7ACF10158C852BFF8 /* NoctDesktop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = NoctDesktop.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		7616558B909D4A1C16FFB839 /* CryptoKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CryptoKit.framework; path = System/Library/Frameworks/CryptoKit.framework; sourceTree = SDKROOT; };
+		8ECEF9F3362B7A7F123FEB6B /* NoctGPUBroker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoctGPUBroker.swift; sourceTree = "<group>"; };
+		B1C3987469AE88CE344519D5 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		C0DBE71356C52399657D1394 /* NativeImageInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeImageInstaller.swift; sourceTree = "<group>"; };
+		C612B5FB57D5632F834D0E9F /* NoctGPUBroker */ = {isa = PBXFileReference; includeInIndex = 0; path = NoctGPUBroker; sourceTree = BUILT_PRODUCTS_DIR; };
+		F5F9D499357E6C320F6F8359 /* DesktopViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesktopViews.swift; sourceTree = "<group>"; };
+		FA336FDEF8776D3AB04E08DC /* VMDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMDisplay.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		139D12322C5175C3D01A9C3A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FB61BE70E286FADF77DC3AAA /* AppKit.framework in Frameworks */,
+				A70E87C0BF8B2E6B70210D40 /* MetalKit.framework in Frameworks */,
+				4DA5BBC406AA3AC9918F3BDE /* CryptoKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		971DC5A1FB1D73CFE872129A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AF9C13AB4E46B9630A445399 /* CryptoKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		AA6158AE376E6B4CB8241941 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4E470C8300DAB1093F78437 /* CryptoKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		B726B50ADB6E2872DAA89D82 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				6EE3432AE5487FA88B692650 /* MetalKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		32CE761246877B2020C18A5B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				5A11A4D6B053BE7A9B7957B4 /* AppKit.framework */,
+				7616558B909D4A1C16FFB839 /* CryptoKit.framework */,
+				3B27A31240F0813CDD786F75 /* MetalKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4908E4A8625D7EC757C91E56 /* tools */ = {
+			isa = PBXGroup;
+			children = (
+				44F39014CCB20F6B5D32C19D /* VerifyNativeRuntime.swift */,
+			);
+			path = tools;
+			sourceTree = "<group>";
+		};
+		49FA583D18694E00A852DF30 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				F5F9D499357E6C320F6F8359 /* DesktopViews.swift */,
+				C0DBE71356C52399657D1394 /* NativeImageInstaller.swift */,
+				3B17D66C23576C100CD27AD2 /* NativeWorkspace.swift */,
+				3028E9A01EC5494BCAA4FF0C /* NoctDesktop.swift */,
+				8ECEF9F3362B7A7F123FEB6B /* NoctGPUBroker.swift */,
+				1ECFE5B8CA3D813140F0BAD9 /* NoctMetal.swift */,
+				000F996913100E279211CE71 /* NoctRuntimeCLI.swift */,
+				FA336FDEF8776D3AB04E08DC /* VMDisplay.swift */,
+			);
+			path = src;
+			sourceTree = "<group>";
+		};
+		53D8ADDCD9C8A7D54C39AB7B = {
+			isa = PBXGroup;
+			children = (
+				B1C3987469AE88CE344519D5 /* Assets.xcassets */,
+				49FA583D18694E00A852DF30 /* src */,
+				4908E4A8625D7EC757C91E56 /* tools */,
+				32CE761246877B2020C18A5B /* Frameworks */,
+				8D4B0EDC8462780E1B9C45E8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		8D4B0EDC8462780E1B9C45E8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				6C4373E7ACF10158C852BFF8 /* NoctDesktop.app */,
+				C612B5FB57D5632F834D0E9F /* NoctGPUBroker */,
+				6190C0F6ECD9AFDB83565F7C /* NoctRuntime */,
+				39B8D4AB586C11536A8502C1 /* NoctRuntimeChecks */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		88FBF51ECB86A6D6870A919C /* NoctRuntimeChecks */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4109724DE60137C43E354B31 /* Build configuration list for PBXNativeTarget "NoctRuntimeChecks" */;
+			buildPhases = (
+				4CAC22D5D03A8C8EB1DFE8AA /* Sources */,
+				AA6158AE376E6B4CB8241941 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NoctRuntimeChecks;
+			packageProductDependencies = (
+			);
+			productName = NoctRuntimeChecks;
+			productReference = 39B8D4AB586C11536A8502C1 /* NoctRuntimeChecks */;
+			productType = "com.apple.product-type.tool";
+		};
+		AFDD0CA3C42699A18D85DB54 /* NoctGPUBroker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A72523C38284EB863063A3F5 /* Build configuration list for PBXNativeTarget "NoctGPUBroker" */;
+			buildPhases = (
+				ED8BA402158A3550FC205E74 /* Sources */,
+				B726B50ADB6E2872DAA89D82 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NoctGPUBroker;
+			packageProductDependencies = (
+			);
+			productName = NoctGPUBroker;
+			productReference = C612B5FB57D5632F834D0E9F /* NoctGPUBroker */;
+			productType = "com.apple.product-type.tool";
+		};
+		D3420247553D06FCCB37CA72 /* NoctRuntime */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DCE281230ABF7A7DEA5BA67F /* Build configuration list for PBXNativeTarget "NoctRuntime" */;
+			buildPhases = (
+				046929D784BD16BBE9B92919 /* Sources */,
+				971DC5A1FB1D73CFE872129A /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = NoctRuntime;
+			packageProductDependencies = (
+			);
+			productName = NoctRuntime;
+			productReference = 6190C0F6ECD9AFDB83565F7C /* NoctRuntime */;
+			productType = "com.apple.product-type.tool";
+		};
+		F0542AA012A931658A8202ED /* NoctDesktop */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 7C8533B4C0FB8AED677C6764 /* Build configuration list for PBXNativeTarget "NoctDesktop" */;
+			buildPhases = (
+				C59CF8DDA7F73B75A43CF1E7 /* Sources */,
+				ADF73547854F182FEAB35144 /* Resources */,
+				139D12322C5175C3D01A9C3A /* Frameworks */,
+				3458E656257BC327EBEAA33C /* Bundle guest runtime and Metal helper */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F6DFA3255237F3C1F56BE693 /* PBXTargetDependency */,
+			);
+			name = NoctDesktop;
+			packageProductDependencies = (
+			);
+			productName = NoctDesktop;
+			productReference = 6C4373E7ACF10158C852BFF8 /* NoctDesktop.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4FD0C5E26D11C4350EA03769 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					88FBF51ECB86A6D6870A919C = {
+						ProvisioningStyle = Automatic;
+					};
+					AFDD0CA3C42699A18D85DB54 = {
+						ProvisioningStyle = Automatic;
+					};
+					D3420247553D06FCCB37CA72 = {
+						ProvisioningStyle = Automatic;
+					};
+					F0542AA012A931658A8202ED = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 7A2C9AE34354DF84B086870B /* Build configuration list for PBXProject "NoctDesktop" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 53D8ADDCD9C8A7D54C39AB7B;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8D4B0EDC8462780E1B9C45E8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				F0542AA012A931658A8202ED /* NoctDesktop */,
+				D3420247553D06FCCB37CA72 /* NoctRuntime */,
+				AFDD0CA3C42699A18D85DB54 /* NoctGPUBroker */,
+				88FBF51ECB86A6D6870A919C /* NoctRuntimeChecks */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		ADF73547854F182FEAB35144 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5856419B69150900A06A812E /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3458E656257BC327EBEAA33C /* Bundle guest runtime and Metal helper */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle guest runtime and Metal helper";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$SRCROOT/tools/bundle-native.sh\"";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		046929D784BD16BBE9B92919 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				125DB9EC2EA026E3C01C9132 /* NativeImageInstaller.swift in Sources */,
+				157F54F00414F2E84BC59891 /* NativeWorkspace.swift in Sources */,
+				F582EA5C37E375E0ACCB9F6B /* NoctRuntimeCLI.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4CAC22D5D03A8C8EB1DFE8AA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0B7A955246250DB8EACBEE0B /* NativeImageInstaller.swift in Sources */,
+				6FFF183DEC9BE311DAAC68A3 /* NativeWorkspace.swift in Sources */,
+				1A7A65454F9BA313F2BDBAA6 /* VerifyNativeRuntime.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C59CF8DDA7F73B75A43CF1E7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A0ACC497E951B4ED67DFB06C /* DesktopViews.swift in Sources */,
+				8D4E9AA08966394F080979D5 /* NativeImageInstaller.swift in Sources */,
+				9513716355620C5A62537104 /* NativeWorkspace.swift in Sources */,
+				38F84B2B5715EF3E9137492C /* NoctDesktop.swift in Sources */,
+				996A3716700C53E0165C656D /* NoctMetal.swift in Sources */,
+				597E054D2B24E0C471546C30 /* VMDisplay.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		ED8BA402158A3550FC205E74 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72C43DCC5BAD46D845BCB1E7 /* NoctGPUBroker.swift in Sources */,
+				F39021D076C143F71F11037D /* NoctMetal.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F6DFA3255237F3C1F56BE693 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = AFDD0CA3C42699A18D85DB54 /* NoctGPUBroker */;
+			targetProxy = 9702A70A3765F2A013648CDF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		13024F71E3F38B3717D354A2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		19AB204332F6B4889C9E8684 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.NoctRuntime;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		4D4FABCD6F381A3A70986C13 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.NoctGPUBroker;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		62E25CD0ECD11019C7626D3E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.NoctRuntimeChecks;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		70F944D1D84EA6F2D4CB60B4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.NoctRuntime;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		72C07CA997E3D0349E07BEDD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.NoctRuntimeChecks;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		7BE2276C64736BCDA587FF09 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Noct Desktop";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NoctVMRuntime = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.app;
+				PRODUCT_NAME = "Noct Desktop";
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		97B547C038C60D18CDB5DBBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.NoctGPUBroker;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E37751C2BBFF797A4E589DAE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		E4FBE9226F228EF706ADCB3B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 2;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Noct Desktop";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NoctVMRuntime = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 0.2.0;
+				PRODUCT_BUNDLE_IDENTIFIER = org.noctdesktop.app;
+				PRODUCT_NAME = "Noct Desktop";
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		4109724DE60137C43E354B31 /* Build configuration list for PBXNativeTarget "NoctRuntimeChecks" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				62E25CD0ECD11019C7626D3E /* Debug */,
+				72C07CA997E3D0349E07BEDD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7A2C9AE34354DF84B086870B /* Build configuration list for PBXProject "NoctDesktop" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E37751C2BBFF797A4E589DAE /* Debug */,
+				13024F71E3F38B3717D354A2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		7C8533B4C0FB8AED677C6764 /* Build configuration list for PBXNativeTarget "NoctDesktop" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E4FBE9226F228EF706ADCB3B /* Debug */,
+				7BE2276C64736BCDA587FF09 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		A72523C38284EB863063A3F5 /* Build configuration list for PBXNativeTarget "NoctGPUBroker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				97B547C038C60D18CDB5DBBA /* Debug */,
+				4D4FABCD6F381A3A70986C13 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		DCE281230ABF7A7DEA5BA67F /* Build configuration list for PBXNativeTarget "NoctRuntime" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				19AB204332F6B4889C9E8684 /* Debug */,
+				70F944D1D84EA6F2D4CB60B4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4FD0C5E26D11C4350EA03769 /* Project object */;
+}

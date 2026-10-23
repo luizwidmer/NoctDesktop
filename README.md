@@ -31,15 +31,20 @@ Lock requests an ACPI shutdown, waits for QEMU to exit, then detaches the encryp
 
 ## Build and run
 
-Tested on Apple Silicon macOS 27.0.1 with Xcode command line tools, Python 3.14 and Homebrew QEMU 11.1.2.
+The macOS app and VM controller are Swift, built with Xcode. The FreeBSD desktop, browser, Files and local secret SDK are C++17. Neither shipped runtime requires Python. Python scripts retained here are build, verification or archived research tools.
+
+Tested on Apple Silicon macOS 27.0.1 with Xcode 27 and Homebrew QEMU 11.1.2.
 
 ```sh
 git clone https://github.com/luizwidmer/NoctDesktop.git
 git clone https://github.com/luizwidmer/NoctBSD.git
 brew install qemu
 cd NoctDesktop
-python3 tools/build.py
-open "build/Noct Desktop.app"
+open NoctDesktop.xcodeproj
+# Select the NoctDesktop scheme and Run.
+# Or build from the terminal:
+./tools/build-native.sh CODE_SIGNING_ALLOWED=NO
+open "build/Xcode/Build/Products/Debug/Noct Desktop.app"
 ```
 
 Create an encrypted workspace, unlock it and choose **Set up desktop**. The installer streams the pinned official cloud image directly into the vault and installs the guest desktop. The first base-system update may reboot once. Setup requires network access and several minutes.
@@ -48,26 +53,27 @@ The sparse vault has an 8 GiB logical capacity; the guest disk has 7.5 GiB logic
 
 The desktop provides draggable icons, a dock, Files with internal folders and folder creation, workspace settings, a WebKitGTK browser and an HTTPS web-app registry. Installed web apps get separate profile/cache/preferences directories. The web-app installer does not port macOS applications or verify publisher signatures.
 
-The shell and guest use Noctweave's plum, ivory, coral and wine colors. The guest resolution follows the native window and fullscreen at logical pixel density, with a 200 ms delay and a 1920×1200 cap. The native display scales frames with Metal, with an AppKit fallback. Software guest rendering remains the default; there is no Retina density mode.
+The compact desktop uses Noctweave's plum, ivory, coral and wine colors, a floating dock, traffic-light window controls and a quiet menu bar. The guest resolution follows the native window and fullscreen at logical pixel density, with a 200 ms delay and a 1920×1200 cap. The native display scales frames with Metal, with an AppKit fallback. Software guest rendering remains the default; there is no Retina density mode.
 
-An experimental **Noct GPU** API lets first-party guest apps render bounded triangles on the Mac's GPU through a private virtio-serial channel. Open **Settings → GPU Studio** for the visible proof. The helper has an additional file-write restriction and exits before vault detachment. This is not an OpenGL/Vulkan driver or browser acceleration. See [GPU implementation and limits](docs/gpu.md).
+The optional browser GPU backend connects Mesa/virgl to ANGLE Metal. WebGL 2, GPU Skia text/Canvas 2D and compositing pass focused pixel checks. The patched renderer dispatches ANGLE's real multisample extension and preserves integer glyph coordinates. Hardware video decode, WebGPU and zero-copy presentation remain unsupported/unverified. See [setup and measured GPU limits](docs/browser-gpu.md).
 
-An optional **browser GPU backend** now connects guest Mesa/virgl to ANGLE Metal. Hardware WebGL 1 and WebKit compositing work. CPU page painting is retained to avoid missing text; WebGL 2, hardware video decode and WebGPU are not working/verified. The small local runtime and matching guest-driver installer preserve the encrypted disk and shutdown-before-unmount sequence. See [setup, evidence and remaining GPU limits](docs/browser-gpu.md). Full browser acceleration is not achieved.
+The earlier bounded-triangle GPU experiment remains in the research tools; it is not part of the new C++ desktop UI. See [its API and limits](docs/gpu.md).
 
 The password is passed through stdin and is not saved in Keychain, arguments or configuration. There is no recovery. Keep your password.
 
 ## CLI
 
 ```sh
-python3 src/freebsd_vm.py create
-python3 src/freebsd_vm.py unlock
-python3 src/freebsd_vm.py setup-vm
-python3 src/freebsd_vm.py launch-vm
-python3 src/freebsd_vm.py status
-python3 src/freebsd_vm.py lock
+CLI=build/Xcode/Build/Products/Debug/NoctRuntime
+"$CLI" --workspace /absolute/path create
+"$CLI" --workspace /absolute/path unlock
+"$CLI" --workspace /absolute/path setup-vm
+"$CLI" --workspace /absolute/path launch-vm
+"$CLI" --workspace /absolute/path status
+"$CLI" --workspace /absolute/path lock
 ```
 
-Place `--workspace /absolute/path` before the action to select a workspace. Do not put passwords on command lines.
+Create/unlock read the password from stdin. Do not put passwords in arguments. Close the GUI before CLI operations that restart or stop its guest. The app uses Application Support by default; developers may select a disposable workspace with `NOCT_DESKTOP_WORKSPACE`.
 
 ## Evidence and scope
 
@@ -76,6 +82,8 @@ See [FreeBSD verification](docs/freebsd-prototype.md) for measurements and remai
 The guest secret SDK uses AES-256-GCM, fresh nonces, authenticated app/record context and separate vault-local key files. This aligns the local encryption primitive with Noctweave's public requirements. It does not implement Noctweave relationships, post-quantum exchange, messaging, group authority or wire compatibility. Guest apps currently share one Unix user; their profile directories and SDK are cooperative separation, not hostile-app isolation.
 
 The FreeBSD VM approach does not require Apple's Endpoint Security entitlement. An earlier research request was submitted; its withdrawal is being handled by the project owner.
+
+Native vault lifecycle checks and the C++ secret authentication tests are documented in [native development](docs/native-development.md). Fresh image download/provisioning was ported to Swift; that entire first-install path has not yet been rerun with this revision.
 
 ## License
 

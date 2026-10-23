@@ -7,9 +7,8 @@ enum LauncherError: LocalizedError {
 
 final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var window: NSWindow!
-    let root = URL(fileURLWithPath: Bundle.main.object(forInfoDictionaryKey: "PrototypeRoot") as! String)
-    let python = Bundle.main.object(forInfoDictionaryKey: "PythonExecutable") as! String
-    let isVM = Bundle.main.object(forInfoDictionaryKey: "NoctVMRuntime") as? Bool ?? false
+    let root = RuntimeResources.sourceRoot()
+    let isVM = Bundle.main.object(forInfoDictionaryKey: "NoctVMRuntime") as? Bool ?? true
     var workspace: URL!
     var state = "unknown"
     var hasLoaded = false
@@ -22,7 +21,7 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     var desktopShown = false
     var browserPids: [Int] = []
     let workQueue = DispatchQueue(label: "local.encryptedworkspace.operations", qos: .userInitiated)
-    let gate = NSView()
+    let gate = DesktopWallpaper(frame: .zero)
     let desktop = WorkspaceDesktop(frame: .zero)
     let vmDesktop = VMWorkspaceView(frame: .zero)
     var vmSocket: String?
@@ -41,8 +40,12 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     let badge = NSImageView()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        umask(0o077)
+        signal(SIGPIPE, SIG_IGN)
+        var noCore = rlimit(rlim_cur: 0, rlim_max: 0)
+        setrlimit(RLIMIT_CORE, &noCore)
         let override = ProcessInfo.processInfo.environment["NOCT_DESKTOP_WORKSPACE"] ?? ProcessInfo.processInfo.environment["PRIVATE_WORKSPACE_FOLDER"]
-        workspace = override.map { URL(fileURLWithPath: $0) } ?? root.appendingPathComponent(isVM ? "workspaces/FreeBSD" : "workspaces/Personal")
+        workspace = override.map { URL(fileURLWithPath: $0) } ?? FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0].appendingPathComponent("Noct Desktop/Workspaces/FreeBSD")
         NSApp.setActivationPolicy(.regular)
         let appMenu = NSMenu()
         let item = NSMenuItem()
@@ -60,6 +63,8 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         window.minSize = NSSize(width: 940, height: 700)
         window.collectionBehavior = .fullScreenPrimary
         window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.toolbarStyle = .unifiedCompact
         window.appearance = NSAppearance(named: .darkAqua)
         window.backgroundColor = WorkspaceStyle.ink
         let content = window.contentView!
@@ -94,25 +99,24 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         let stack = NSStackView()
         stack.orientation = .vertical
-        stack.alignment = .leading
-        stack.spacing = 14
+        stack.alignment = .centerX
+        stack.spacing = 16
         stack.translatesAutoresizingMaskIntoConstraints = false
         gate.addSubview(stack)
-        NSLayoutConstraint.activate([stack.widthAnchor.constraint(equalToConstant: 620),
+        NSLayoutConstraint.activate([stack.widthAnchor.constraint(equalToConstant: 480),
                                      stack.centerXAnchor.constraint(equalTo: gate.centerXAnchor),
-                                     stack.topAnchor.constraint(equalTo: gate.topAnchor, constant: 48)])
-        let eyebrow = label("NOCT DESKTOP  /  RESEARCH PREVIEW", 11, .medium, WorkspaceStyle.muted)
-        stack.addArrangedSubview(eyebrow)
-        heading.font = .systemFont(ofSize: 32, weight: .semibold)
-        let titleRow = NSStackView(views: [heading, badge])
-        titleRow.orientation = .horizontal
-        titleRow.spacing = 20
+                                     stack.centerYAnchor.constraint(equalTo: gate.centerYAnchor)])
+        heading.font = .systemFont(ofSize: 28, weight: .medium)
+        let titleRow = NSStackView(views: [badge, heading])
+        titleRow.orientation = .vertical
+        titleRow.alignment = .centerX
+        titleRow.spacing = 18
         badge.contentTintColor = WorkspaceStyle.accent
         badge.imageScaling = .scaleProportionallyUpOrDown
-        badge.widthAnchor.constraint(equalToConstant: 36).isActive = true
-        badge.heightAnchor.constraint(equalToConstant: 36).isActive = true
+        badge.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        badge.heightAnchor.constraint(equalToConstant: 46).isActive = true
         stack.addArrangedSubview(titleRow)
-        status.font = .systemFont(ofSize: 15)
+        status.font = .systemFont(ofSize: 13)
         status.textColor = WorkspaceStyle.muted
         stack.addArrangedSubview(status)
 
@@ -124,16 +128,17 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         card.wantsLayer = true
         card.layer?.backgroundColor = WorkspaceStyle.panel.cgColor
         card.layer?.cornerRadius = 12
-        card.addArrangedSubview(label("AES-256 encrypted disk image · APFS", 15, .medium))
+        card.addArrangedSubview(label("Your apps. Your private space.", 14, .medium))
         browserStatus.font = .systemFont(ofSize: 13)
         browserStatus.textColor = WorkspaceStyle.muted
         card.addArrangedSubview(browserStatus)
         stack.addArrangedSubview(card)
+        card.isHidden = isVM
         card.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
         passwordLabel.font = .systemFont(ofSize: 12, weight: .medium)
         passwordLabel.textColor = WorkspaceStyle.muted
         stack.addArrangedSubview(passwordLabel)
-        password.placeholderString = "Enter your workspace password"
+        password.placeholderString = "Password"
         password.font = .systemFont(ofSize: 16)
         password.bezelStyle = .roundedBezel
         password.heightAnchor.constraint(equalToConstant: 34).isActive = true
@@ -167,11 +172,12 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         message.textColor = WorkspaceStyle.muted
         stack.addArrangedSubview(message)
         message.widthAnchor.constraint(equalTo: stack.widthAnchor).isActive = true
-        let footer = label("Research build. Complete write confinement is not certified.\nUse synthetic data while verification is in progress.", 12, .regular, WorkspaceStyle.muted)
+        let footer = label("Research preview", 11, .regular, WorkspaceStyle.muted)
         footer.maximumNumberOfLines = 2
         stack.addArrangedSubview(footer)
-        let reportButton = NSButton(title: "Open verification notes", target: self, action: #selector(openNotes))
-        reportButton.bezelStyle = .inline
+        let reportButton = NSButton(title: "About this preview", target: self, action: #selector(openNotes))
+        reportButton.isBordered = false
+        reportButton.contentTintColor = WorkspaceStyle.muted
         stack.addArrangedSubview(reportButton)
         window.center()
         render()
@@ -190,6 +196,12 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     func execute(_ action: String, password: String? = nil, payload: [String: Any]? = nil) -> Result<[String: Any], Error> {
         do {
+            if isVM { return .success(try NativeWorkspace(folder: workspace, root: root).perform(action, password: password)) }
+            // Archived native-app experiments retain their separate research
+            // adapter. The Noct Desktop Xcode target always uses the Swift VM.
+            guard let python = Bundle.main.object(forInfoDictionaryKey: "PythonExecutable") as? String else {
+                throw LauncherError.message("This bundle does not include the archived native-app research adapter.")
+            }
             let process = Process()
             process.executableURL = URL(fileURLWithPath: python)
         process.arguments = [root.appendingPathComponent(isVM ? "src/freebsd_vm.py" : "src/workspace.py").path, "--workspace", workspace.path]
@@ -253,6 +265,15 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         }
         browser.isEnabled = !busy && unlocked && !running
         lock.isEnabled = !busy && (unlocked || !known)
+        if isVM {
+            heading.stringValue = created ? "Noct Desktop" : "Create workspace"
+            status.stringValue = unlocked ? "Ready" : created ? "Encrypted · locked" : "A private place for your apps."
+            passwordLabel.stringValue = "Password"
+            primary.title = created ? "Unlock" : "Create"
+            primary.isHidden = unlocked || busy
+            browser.isHidden = !unlocked || busy
+            lock.isHidden = (!unlocked && known) || busy
+        }
         if !known {
             heading.stringValue = hasLoaded ? "Volume state unavailable" : "Opening Noct Desktop…"
             status.stringValue = hasLoaded ? "The workspace lock state could not be verified." : "Checking the encrypted workspace volume."
@@ -260,8 +281,8 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
             badge.image = NSImage(systemSymbolName: "exclamationmark.triangle", accessibilityDescription: "State unknown")
         }
         if busy {
-            heading.stringValue = operation == "lock" ? "Locking your workspace…" : "Preparing your workspace…"
-            status.stringValue = operation == "lock" ? (isVM ? "Shutting down FreeBSD and unmounting the encrypted volume." : "Closing Noct Browser and unmounting the encrypted volume.") : "Waiting for the volume operation to finish."
+            heading.stringValue = operation == "lock" ? "Locking…" : "Preparing…"
+            status.stringValue = operation == "lock" ? "Closing your apps." : "One moment."
             badge.image = NSImage(systemSymbolName: "ellipsis.circle", accessibilityDescription: "Working")
         }
     }
@@ -301,7 +322,7 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         busy = true
         operation = action
         message.textColor = WorkspaceStyle.muted
-        message.stringValue = action == "lock" ? (isVM ? "Shutting down FreeBSD and unmounting…" : "Closing workspace Noct Browser and unmounting…") : "Working…"
+        message.stringValue = isVM ? "" : action == "lock" ? "Closing Noct Browser and unmounting…" : "Working…"
         render()
         if desktopShown { desktop.showMessage(action == "install-webkit" ? "Installing Noct Browser in the encrypted workspace…" : "Opening workspace Noct Browser…") }
         workQueue.async { [self] in
@@ -314,7 +335,7 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 switch result {
                 case .success:
                     message.textColor = WorkspaceStyle.muted
-                    message.stringValue = action == "create" ? (isVM ? "Workspace created and locked. Unlock it to set up Noct Desktop." : "Workspace created and locked. Unlock it to install Noct Browser.") : action == "lock" ? "Encrypted volume unmounted successfully." : "Operation complete."
+                    message.stringValue = isVM ? "" : action == "create" ? "Workspace created. Unlock it to install Noct Browser." : action == "lock" ? "Encrypted volume unmounted." : "Done."
                 case let .failure(error):
                     message.textColor = WorkspaceStyle.warning
                     message.stringValue = error.localizedDescription
@@ -336,7 +357,7 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
     }
     @objc func browserAction() { perform(isVM ? (installed ? "launch-vm" : "setup-vm") : (installed ? "launch-webkit" : "install-webkit")) }
     @objc func lockAction() { perform("lock") }
-    @objc func openNotes() { NSWorkspace.shared.open(root.appendingPathComponent("README.md")) }
+    @objc func openNotes() { NSWorkspace.shared.open(Bundle.main.resourceURL?.appendingPathComponent("README.md") ?? root.appendingPathComponent("README.md")) }
     func windowShouldClose(_ sender: NSWindow) -> Bool { NSApp.terminate(nil); return false }
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if quitting { return .terminateNow }
@@ -344,7 +365,7 @@ final class WorkspaceApp: NSObject, NSApplicationDelegate, NSWindowDelegate {
         busy = true
         operation = "lock"
         render()
-        message.stringValue = "Locking the workspace before quitting…"
+        message.stringValue = isVM ? "" : "Locking before quitting…"
         workQueue.async { [self] in
             let result = execute("lock")
             DispatchQueue.main.async { [self] in

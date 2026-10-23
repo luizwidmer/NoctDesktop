@@ -1,0 +1,241 @@
+--- /dev/null
++++ b/src/vrend/vrend_angle.h
+@@ -0,0 +1,60 @@
++/* SPDX-License-Identifier: MIT
++ * Noct: dispatch ANGLE's GLES 3.0 multisample extension without claiming ES 3.1.
++ */
++#ifndef VREND_ANGLE_H
++#define VREND_ANGLE_H
++#include <epoxy/gl.h>
++#ifdef HAVE_EPOXY_EGL_H
++#include <epoxy/egl.h>
++#endif
++
++static inline bool vrend_use_angle_multisample(void)
++{
++#ifdef HAVE_EPOXY_EGL_H
++   return !epoxy_is_desktop_gl() && epoxy_gl_version() < 31 &&
++          epoxy_has_gl_extension("GL_ANGLE_texture_multisample") &&
++          eglGetProcAddress("glTexStorage2DMultisampleANGLE") &&
++          eglGetProcAddress("glGetMultisamplefvANGLE") &&
++          eglGetProcAddress("glSampleMaskiANGLE");
++#else
++   return false;
++#endif
++}
++
++static inline void vrend_tex_storage_2d_multisample(GLenum target, GLsizei samples,
++   GLenum format, GLsizei width, GLsizei height, GLboolean fixed)
++{
++#ifdef HAVE_EPOXY_EGL_H
++   if (vrend_use_angle_multisample()) {
++      typedef void (GLAPIENTRY *Proc)(GLenum, GLsizei, GLenum, GLsizei, GLsizei, GLboolean);
++      ((Proc)eglGetProcAddress("glTexStorage2DMultisampleANGLE"))(target, samples, format, width, height, fixed);
++      return;
++   }
++#endif
++   glTexStorage2DMultisample(target, samples, format, width, height, fixed);
++}
++
++static inline void vrend_get_multisamplefv(GLenum pname, GLuint index, GLfloat *value)
++{
++#ifdef HAVE_EPOXY_EGL_H
++   if (vrend_use_angle_multisample()) {
++      typedef void (GLAPIENTRY *Proc)(GLenum, GLuint, GLfloat *);
++      ((Proc)eglGetProcAddress("glGetMultisamplefvANGLE"))(pname, index, value);
++      return;
++   }
++#endif
++   glGetMultisamplefv(pname, index, value);
++}
++
++static inline void vrend_sample_maski(GLuint index, GLbitfield mask)
++{
++#ifdef HAVE_EPOXY_EGL_H
++   if (vrend_use_angle_multisample()) {
++      typedef void (GLAPIENTRY *Proc)(GLuint, GLbitfield);
++      ((Proc)eglGetProcAddress("glSampleMaskiANGLE"))(index, mask);
++      return;
++   }
++#endif
++   glSampleMaski(index, mask);
++}
++#endif
+--- a/src/vrend/vrend_renderer.c
++++ b/src/vrend/vrend_renderer.c
+@@ -22,6 +22,7 @@
+  *
+  **************************************************************************/
+ #ifdef HAVE_CONFIG_H
++#include "vrend_angle.h"
+ #include "config.h"
+ #endif
+ 
+@@ -3418,6 +3419,11 @@
+          v->elements[i].norm = GL_TRUE;
+       v->elements[i].nr_chan = desc->nr_channels;
+ 
++      /* Shader input types must also match glVertexAttribIPointer on GLES 3.0,
++       * which uses the legacy binding path rather than glVertexAttribIFormat. */
++      UPDATE_INT_SIGN_MASK(elements[i].src_format, i,
++                           v->signed_int_bitmask, v->unsigned_int_bitmask);
++
+       if (desc->nr_channels == 4 && desc->swizzle[0] == PIPE_SWIZZLE_Z)
+          v->zyxw_bitmask |= 1 << i;
+    }
+@@ -3464,9 +3470,6 @@
+          GLint size = !vrend_state.use_gles && (v->zyxw_bitmask & (1 << i)) ? GL_BGRA : ve->nr_chan;
+ 
+          if (util_format_is_pure_integer(ve->base.src_format)) {
+-            UPDATE_INT_SIGN_MASK(ve->base.src_format, i,
+-                                 v->signed_int_bitmask,
+-                                 v->unsigned_int_bitmask);
+             glVertexAttribIFormat(i, size, ve->type, ve->base.src_offset);
+          }
+          else
+@@ -7557,6 +7560,12 @@
+    if (getenv("VIRGL_USE_INTEGER"))
+       return true;
+ 
++   /* Integer attributes encoded in floating point inputs can be subnormal.
++    * ANGLE Metal may flush these before the TGSI bitcast recovers the value. */
++   const char *renderer = (const char *)glGetString(GL_RENDERER);
++   if (renderer && strstr(renderer, "ANGLE Metal Renderer"))
++      return true;
++
+    const char * a = (const char *) glGetString(GL_VENDOR);
+    if (!a)
+        return false;
+@@ -7662,6 +7671,12 @@
+ 
+    init_features(gles ? 0 : gl_ver,
+                  gles ? gl_ver : 0);
++
++   if (vrend_use_angle_multisample()) {
++      set_feature(feat_texture_multisample);
++      set_feature(feat_storage_multisample);
++      set_feature(feat_sample_mask);
++   }
+ 
+    if (!vrend_winsys_has_gl_colorspace())
+       clear_feature(feat_srgb_write_control) ;
+@@ -8084,6 +8099,10 @@
+ 
+    /* only texture 2d and 2d array can have multiple samples */
+    if (args->nr_samples > 1) {
++      if (vrend_use_angle_multisample() && args->target == PIPE_TEXTURE_2D_ARRAY) {
++         snprintf(errmsg, 256, "ANGLE multisampling supports only 2D textures");
++         return -1;
++      }
+       if (!vrend_format_can_multisample(args->format)) {
+          snprintf(errmsg, 256, "Unsupported multisample texture format %s",
+                   util_format_name(args->format));
+@@ -8761,7 +8780,7 @@
+       if (pr->nr_samples > 1) {
+          if (format_can_texture_storage) {
+             if (gr->target == GL_TEXTURE_2D_MULTISAMPLE) {
+-               glTexStorage2DMultisample(gr->target, pr->nr_samples,
++               vrend_tex_storage_2d_multisample(gr->target, pr->nr_samples,
+                                          internalformat, pr->width0, pr->height0,
+                                          GL_TRUE);
+             } else {
+@@ -10343,7 +10362,7 @@
+ void vrend_set_sample_mask(UNUSED struct vrend_context *ctx, unsigned sample_mask)
+ {
+    if (has_feature(feat_sample_mask))
+-      glSampleMaski(0, sample_mask);
++      vrend_sample_maski(0, sample_mask);
+ }
+ 
+ void vrend_set_min_samples(struct vrend_context *ctx, unsigned min_samples)
+--- a/src/vrend/vrend_formats.c
++++ b/src/vrend/vrend_formats.c
+@@ -21,6 +21,7 @@
+  * OTHER DEALINGS IN THE SOFTWARE.
+  *
+  **************************************************************************/
++#include "vrend_angle.h"
+ #include <epoxy/gl.h>
+ 
+ #include "vrend_renderer.h"
+@@ -660,7 +661,7 @@
+          glGenTextures(1, &tex_id);
+          glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tex_id);
+          if (table[i].flags & VIRGL_TEXTURE_CAN_TEXTURE_STORAGE) {
+-            glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 2,
++            vrend_tex_storage_2d_multisample(GL_TEXTURE_2D_MULTISAMPLE, 2,
+                                       table[i].internalformat, 32, 32, GL_TRUE);
+          } else {
+             glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 2,
+@@ -724,7 +725,7 @@
+          continue;
+       glGenTextures(1, &tex);
+       glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, tex);
+-      glTexStorage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, test_num_samples[i], GL_RGBA32F, 64, 64, GL_TRUE);
++      vrend_tex_storage_2d_multisample(GL_TEXTURE_2D_MULTISAMPLE, test_num_samples[i], GL_RGBA32F, 64, 64, GL_TRUE);
+       status = glGetError();
+       if (status == GL_NO_ERROR) {
+          glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+@@ -737,7 +738,7 @@
+             for (unsigned k = 0; k < test_num_samples[i]; ++k) {
+                float msp[2];
+                uint32_t compressed;
+-               glGetMultisamplefv(GL_SAMPLE_POSITION, k, msp);
++               vrend_get_multisamplefv(GL_SAMPLE_POSITION, k, msp);
+                compressed = ((unsigned)(floor(msp[0] * 16.0f)) & 0xf) << 4;
+                compressed |= ((unsigned)(floor(msp[1] * 16.0f)) & 0xf);
+                caps->sample_locations[out_buf_offsets[i] + (k >> 2)] |= compressed  << (8 * (k & 3));
+--- a/src/vrend/vrend_shader.c
++++ b/src/vrend/vrend_shader.c
+@@ -22,6 +22,7 @@
+  *
+  **************************************************************************/
+ 
++#include "vrend_angle.h"
+ #include "tgsi/tgsi_info.h"
+ #include "tgsi/tgsi_iterate.h"
+ #include "tgsi/tgsi_scan.h"
+@@ -6255,8 +6256,12 @@
+          emit_ext(glsl_strbufs, "EXT_clip_cull_distance", "require");
+       }
+ 
+-      if (ctx->shader_req_bits & SHADER_REQ_SAMPLER_MS)
+-         emit_ext(glsl_strbufs, "OES_texture_storage_multisample_2d_array", "require");
++      if (ctx->shader_req_bits & SHADER_REQ_SAMPLER_MS) {
++         if (vrend_use_angle_multisample())
++            emit_ext(glsl_strbufs, "ANGLE_texture_multisample", "require");
++         else
++            emit_ext(glsl_strbufs, "OES_texture_storage_multisample_2d_array", "require");
++      }
+ 
+       if (ctx->shader_req_bits & SHADER_REQ_CONSERVATIVE_DEPTH)
+          emit_ext(glsl_strbufs, "EXT_conservative_depth", "require");
+--- a/src/vrend/vrend_blitter.c
++++ b/src/vrend/vrend_blitter.c
+@@ -25,6 +25,7 @@
+ /* gallium blitter implementation in GL */
+ /* for when we can't use glBlitFramebuffer */
+ 
++#include "vrend_angle.h"
+ #include <stdio.h>
+ 
+ #include "util/hash_table.h"
+@@ -127,7 +128,17 @@
+ {
+    GLint param;
+    GLint id = glCreateShader(shader_type);
+-   glShaderSource(id, 1, (const char **)&buf, NULL);
++   /* These blits use GLES 3.0 syntax, with ANGLE's explicit MSAA extension.
++    * Keep 3.1 shaders on hosts that actually provide a 3.1 context. */
++   if (vrend_use_angle_multisample() && !strncmp(buf, "#version 310 es\n", 16)) {
++      const char *parts[] = {
++         "#version 300 es\n#extension GL_ANGLE_texture_multisample : require\n",
++         strchr(buf, '\n') + 1,
++      };
++      glShaderSource(id, 2, parts, NULL);
++   } else {
++      glShaderSource(id, 1, (const char **)&buf, NULL);
++   }
+    glCompileShader(id);
+ 
+    glGetShaderiv(id, GL_COMPILE_STATUS, &param);

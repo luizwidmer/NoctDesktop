@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Build a small AppKit launcher and the local filesystem observer."""
+"""Compatibility entry point. Use Xcode or build-native.sh for Noct Desktop.
+
+--native-experiments also builds the archived native browser research tools.
+"""
 from pathlib import Path
 import os
 import plistlib
@@ -7,6 +10,8 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
+if "--native-experiments" not in sys.argv:
+    os.execv(str(ROOT / "tools/build-native.sh"), [str(ROOT / "tools/build-native.sh"), *sys.argv[1:]])
 BUILD = ROOT / "build"
 BUILD.mkdir(exist_ok=True)
 BROWSER = BUILD / "Noct Browser.app"
@@ -25,7 +30,7 @@ subprocess.run(["/usr/bin/codesign", "--force", "--sign", "-", str(BROWSER)], ch
 APP = BUILD / "Noct Desktop Native.app"
 (APP / "Contents/MacOS").mkdir(parents=True, exist_ok=True)
 subprocess.run(["/usr/bin/xcrun", "swiftc", "-swift-version", "5", "-O", "-framework", "AppKit", "-framework", "MetalKit",
-                str(ROOT / "src/NoctDesktop.swift"), str(ROOT / "src/DesktopViews.swift"), str(ROOT / "src/VMDisplay.swift"), str(ROOT / "src/NoctMetal.swift"),
+                str(ROOT / "src/NoctDesktop.swift"), str(ROOT / "src/DesktopViews.swift"), str(ROOT / "src/VMDisplay.swift"), str(ROOT / "src/NoctMetal.swift"), str(ROOT / "src/NativeWorkspace.swift"), str(ROOT / "src/NativeImageInstaller.swift"),
                 "-o", str(APP / "Contents/MacOS/NoctDesktop")], check=True)
 info = {"CFBundleName": "Noct Desktop", "CFBundleDisplayName": "Noct Desktop",
         "CFBundleIdentifier": "local.noctdesktop.prototype", "CFBundleExecutable": "NoctDesktop",

@@ -251,7 +251,7 @@ echo NOCT_BOOTSTRAP_READY > /dev/console
         archive = io.BytesIO()
         with tarfile.open(fileobj=archive, mode="w") as bundle:
             for path in sorted(BSD_SOURCE.iterdir()):
-                if path.is_file(): bundle.add(path, arcname=path.name)
+                if path.is_file() or path.name == "native": bundle.add(path, arcname=path.name)
         self.ssh("mkdir -p /opt/noct; tar -xf - -C /opt/noct && chmod 755 /opt/noct/*.sh /opt/noct/noct.py /opt/noct/noct_gpu.py", input=archive.getvalue())
 
     def enable_browser_gpu(self):

@@ -29,21 +29,12 @@ class DesktopWallpaper: NSView {
                            NSColor(srgbRed: 27/255, green: 18/255, blue: 23/255, alpha: 1),
                            NSColor(srgbRed: 62/255, green: 26/255, blue: 34/255, alpha: 1)])!
             .draw(in: bounds, angle: 28)
-        let center = NSPoint(x: bounds.width * 0.70, y: bounds.height * 0.55)
-        for index in 0..<13 {
-            let radius = CGFloat(190 + index * 33)
-            let circle = NSBezierPath(ovalIn: NSRect(x: center.x - radius, y: center.y - radius * 0.57,
-                                                    width: radius * 2, height: radius * 1.14))
-            NSColor.white.withAlphaComponent(0.025 + CGFloat(index % 3) * 0.007).setStroke()
-            circle.lineWidth = 1
-            circle.stroke()
+        for index in 0..<3 {
+            let circle = NSBezierPath(ovalIn: NSRect(x: bounds.width * (0.22 + Double(index) * 0.15), y: -bounds.height * (0.62 + Double(index) * 0.05),
+                                                    width: bounds.width * 1.24, height: bounds.height * 1.24))
+            WorkspaceStyle.accent.withAlphaComponent(0.055).setFill()
+            circle.fill()
         }
-        let paragraph = NSMutableParagraphStyle()
-        paragraph.alignment = .right
-        ("A little space of your own." as NSString).draw(
-            in: NSRect(x: 240, y: 132, width: bounds.width - 286, height: 30),
-            withAttributes: [.font: NSFont.systemFont(ofSize: 19, weight: .light),
-                             .foregroundColor: NSColor.white.withAlphaComponent(0.30), .paragraphStyle: paragraph])
     }
 }
 

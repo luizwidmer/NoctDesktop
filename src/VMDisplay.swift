@@ -271,8 +271,10 @@ final class VMWorkspaceView: NSView {
         let title = NSTextField(labelWithString: "Noct Desktop")
         title.font = .systemFont(ofSize: 15, weight: .semibold)
         detail.font = .systemFont(ofSize: 11); detail.textColor = WorkspaceStyle.muted
-        let labels = NSStackView(views: [title, detail]); labels.orientation = .vertical; labels.alignment = .leading; labels.spacing = 4
-        let lockButton = NSButton(title: "Lock workspace", target: self, action: #selector(lockAction)); lockButton.bezelStyle = .rounded
+        let labels = NSStackView(views: [title, detail]); labels.orientation = .horizontal; labels.alignment = .centerY; labels.spacing = 14
+        let lockButton = NSButton(title: "Lock", target: self, action: #selector(lockAction)); lockButton.bezelStyle = .rounded
+        lockButton.image = NSImage(systemSymbolName: "lock", accessibilityDescription: "Lock workspace")
+        lockButton.imagePosition = .imageLeading
         startButton.target = self; startButton.action = #selector(startAction); startButton.bezelStyle = .rounded
         let spacer = NSView(); spacer.setContentHuggingPriority(.defaultLow, for: .horizontal)
         let header = NSStackView(views: [labels, spacer, startButton, lockButton]); header.spacing = 16
@@ -280,9 +282,9 @@ final class VMWorkspaceView: NSView {
         canvas.translatesAutoresizingMaskIntoConstraints = false; addSubview(canvas)
         canvas.setAccessibilityElement(true); canvas.setAccessibilityRole(.image); canvas.setAccessibilityLabel("FreeBSD workspace display")
         NSLayoutConstraint.activate([header.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 18),
-            header.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18), header.topAnchor.constraint(equalTo: topAnchor, constant: 10), header.heightAnchor.constraint(equalToConstant: 48),
+            header.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -18), header.topAnchor.constraint(equalTo: topAnchor, constant: 8), header.heightAnchor.constraint(equalToConstant: 30),
             canvas.leadingAnchor.constraint(equalTo: leadingAnchor), canvas.trailingAnchor.constraint(equalTo: trailingAnchor),
-            canvas.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 10), canvas.bottomAnchor.constraint(equalTo: bottomAnchor)])
+            canvas.topAnchor.constraint(equalTo: header.bottomAnchor, constant: 8), canvas.bottomAnchor.constraint(equalTo: bottomAnchor)])
     }
     required init?(coder: NSCoder) { fatalError() }
     @objc private func startAction() { start?() }
@@ -304,8 +306,8 @@ final class VMWorkspaceView: NSView {
         connection.onFrame = { [weak self] image in
             guard let self, self.generation == epoch else { return }
             self.canvas.image = image
-            if self.detail.stringValue != "Private workspace · unlocked" {
-                self.detail.stringValue = "Private workspace · unlocked"
+            if self.detail.stringValue != "Unlocked" {
+                self.detail.stringValue = "Unlocked"
             }
         }
         connection.onFailure = { [weak self] message in
